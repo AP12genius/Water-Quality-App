@@ -1,187 +1,117 @@
-feature/wqi-forecast-benchmark
-# Water Quality Index Prediction Handbook
+# 💧 Water Quality Index (WQI) Forecaster & Analysis App
 
-## What this project achieves
+An interactive, machine-learning-powered web application that forecasts a river monitoring station's **next-year Water Quality Index (WQI)** from current-year physicochemical and biological observations.
 
-This project forecasts a river monitoring station's **next-year Water Quality
-Index (WQI)** from the measurements available in its current year. It provides
-a reproducible, leakage-safe benchmark for Indian river-water observations and
-compares several machine-learning approaches against simple, meaningful
-baselines.
+Built with **Streamlit**, **Scikit-Learn**, and **Pandas**, featuring a leakage-safe chronological ML benchmark and a sleek, modern UI.
 
-The model is intended to support water-quality monitoring, not replace field
-sampling or regulatory assessment.
+---
 
-## Data and parameters
+## 🚀 Live Demo & Quick Start
 
-The dataset in `data/dataset.csv` contains nationwide observations from
-2003–2014. The forecasting inputs are:
-
-| Parameter | Meaning |
-| --- | --- |
-| pH | Acidity/alkalinity of water |
-| DO | Dissolved oxygen (mg/L) |
-| BOD | Biochemical oxygen demand (mg/L) |
-| TC / FC | Total and fecal coliform counts (MPN/100 mL) |
-| Nitrate | Nitrate/nitrite concentration (mg/L) |
-
-Duplicate measurements for the same station and year are averaged. The WQI
-target uses a documented five-input approximation: DO (0.31), pH (0.11), BOD
-(0.19), fecal coliform (0.28), and nitrate (0.11). The target is the following
-calendar year's WQI, never the same row's WQI.
-
-## Before and after
-
-The original notebook calculated WQI from a row and trained models on that
-same row. Because the target was built from the input measurements, this was
-target leakage and could make R² look unrealistically high. It also used a
-random data split, which allows future years to influence training.
-
-The current workflow creates only consecutive station-year pairs, fits
-imputation/scaling on training data alone, and splits chronologically:
-
-| Partition | Target year |
-| --- | --- |
-| Training | 2007–2012 |
-| Validation | 2013 |
-| Final test | 2014 |
-
-This makes the reported test result a realistic estimate of forecasting a
-future annual observation.
-
-## Models and evaluation
-
-The benchmark evaluates a median baseline, a persistence baseline (current WQI),
-Random Forest, XGBoost, LightGBM, SVR, and a stacked ensemble. The ensemble's
-Ridge meta-model is trained from chronological out-of-fold base-model
-predictions, not random cross-validation. Metrics are R², MAE, RMSE, and MSE.
-
-The included 2025 Haridwar research paper is the methodological reference. It
-reports individual XGBR, RFR, SVR, and RNN scores on a different monthly
-2017–2022 dataset. LightGBM and stacking are project extensions. Paper results
-are context, not a performance target for this different dataset and task.
-
-Current final-test results are:
-
-| Model | R² | MAE | RMSE |
-| --- | ---: | ---: | ---: |
-| Persistence baseline | 0.9076 | 3.1405 | 4.3294 |
-| Random Forest | 0.8648 | 3.9590 | 5.2386 |
-| XGBoost | 0.8562 | 3.9517 | 5.4021 |
-| LightGBM | 0.8521 | 4.0291 | 5.4795 |
-| Stacked ensemble | 0.8554 | 4.0033 | 5.4168 |
-| SVR | 0.7517 | 5.0512 | 7.0992 |
-
-The persistence baseline is currently best. This is an important finding, not
-a failure to hide: it establishes the standard that future models must beat.
-The runner flags any train-to-validation R² drop above 0.10; the current
-XGBoost configuration is flagged, so it must not be presented as
-fully generalised without further validation tuning.
-
-## Setup and usage
-
-The project uses Python 3.12 and [uv](https://docs.astral.sh/uv/). `uv.lock`
-is the exact dependency lock; `requirements.txt` is its pip-compatible export.
-
+### 1. Install Dependencies
 ```bash
-uv sync --group dev
-uv run pytest
-uv run ruff check .
-uv run python -m src.model
+pip install -r requirements.txt
 ```
 
-Open `main.ipynb` to see the full methodology with Markdown explanations,
-data preparation, benchmark execution, and SHAP interpretation. Generate a
-Random Forest SHAP plot explicitly when required:
-
+### 2. Launch the Streamlit Web Application
 ```bash
-uv run python -m src.model --shap-output /tmp/wqi-shap.png
+streamlit run app.py
 ```
+The app will open automatically in your browser at `http://localhost:8501`.
 
-## RNN status and next steps
+---
 
-TensorFlow is available through `uv sync --group rnn`, but the RNN is deferred.
-The paper used regular monthly sequences; this dataset is annual and contains
-irregular station histories. Before adding an RNN, define a sequence window,
-handle missing years, and prove that every history window precedes its target.
-The next improvement should be validation-only feature and hyperparameter work,
-with the 2014 test set remaining untouched until a final comparison.
-=======
-# my-ml-model
+## ✨ Features
 
-Water Quality Index (WQI) prediction from water-sample measurements
-(pH, dissolved oxygen, BOD, coliform counts, nitrate), using a stacked
-ensemble (Random Forest + XGBoost + LightGBM + SVR, with a Ridge
-meta-learner) and a simple RNN baseline, plus SHAP-based explainability.
+- **Real-Time WQI Calculation & Forecasting**:
+  - Automatically calculates current WQI from water sample measurements.
+  - Predicts **next-year WQI** using a trained Random Forest Regressor.
+  - Classifies water health status (🟢 *Excellent*, 🔵 *Good*, 🟡 *Medium*, 🟠 *Poor*, 🔴 *Very Poor*).
+- **Interactive Parameter Sliders**:
+  - Live adjustment of pH, Dissolved Oxygen, BOD, Coliform counts, and Nitrate.
+  - Preset scenarios (Pristine Spring, Safe River, Urban Discharge, Severe Industrial Spill).
+- **Safety & Usage Recommendations**:
+  - Contextual advice for drinking, recreation, agricultural use, and ecological safety.
+- **Model Benchmark & Diagnostics**:
+  - Comparison across ML algorithms (Random Forest, XGBoost, LightGBM, SVR, Stacked Ensemble).
+  - Visualization of actual vs. predicted performance, feature distributions, and partition metrics.
 
-## Project structure
+---
+
+## 📊 Water Quality Parameters
+
+The model evaluates standard surface water quality parameters:
+
+| Parameter | Unit | Description | Optimal Range |
+| :--- | :--- | :--- | :--- |
+| **pH** | — | Acidity / alkalinity measure | 6.5 – 8.5 |
+| **Dissolved Oxygen (DO)** | mg/L | Dissolved oxygen available for aquatic life | > 6.0 mg/L |
+| **Biochemical Oxygen Demand (BOD)** | mg/L | Organic matter decomposition load | < 2.0 mg/L |
+| **Total Coliform (TC)** | MPN/100 mL | General bacterial presence | < 500 MPN/100 mL |
+| **Fecal Coliform (FC)** | MPN/100 mL | Human and animal waste contamination | < 100 MPN/100 mL |
+| **Nitrate** | mg/L | Agricultural runoff / nutrient concentration | < 10 mg/L |
+
+The target WQI combines these with documented weighted sub-indices: DO (0.31), FC (0.28), BOD (0.19), pH (0.11), and Nitrate (0.11).
+
+---
+
+## 🧠 Model Benchmark
+
+To avoid target leakage, models are trained on strictly **consecutive station-year pairs** with a **chronological split**:
+- **Training Set:** 2007–2012
+- **Validation Set:** 2013
+- **Final Test Set:** 2014
+
+### Final Test Set Performance
+
+| Model | R² Score | MAE | RMSE |
+| :--- | :---: | :---: | :---: |
+| **Persistence Baseline (Current WQI)** | 0.9076 | 3.14 | 4.33 |
+| **Random Forest (Production Model)** | 0.8648 | 3.96 | 5.24 |
+| **XGBoost** | 0.8562 | 3.95 | 5.40 |
+| **LightGBM** | 0.8521 | 4.03 | 5.48 |
+| **Stacked Ensemble** | 0.8554 | 4.00 | 5.42 |
+| **SVR** | 0.7517 | 5.05 | 7.10 |
+
+---
+
+## 📁 Repository Structure
 
 ```
-my-ml-model/
-├── README.md
-├── pyproject.toml
+Water-Quality-App/
+├── app.py                      # Interactive Streamlit web application
+├── requirements.txt            # Application dependencies for local run & cloud deployment
+├── .streamlit/
+│   └── config.toml             # Custom styling and theme settings
+├── models/
+│   ├── rf.joblib               # Serialized Random Forest model
+│   └── preprocessor.joblib     # Preprocessing pipeline
 ├── data/
-│   └── dataset.csv        # raw water quality samples
-├── assets/
-│   └── model.png          # reference diagram / screenshot
-├── paper/
-│   └── s12145-025-01865-2.pdf   # base research paper this project builds on
+│   └── dataset.csv             # Historical water quality monitoring dataset
+├── assets/                     # Diagnostic and model performance visual plots
 ├── src/
-│   └── model.py           # data loading, feature engineering, model pipeline
-├── tests/
-│   └── test_model.py      # unit tests for the pipeline
-└── notebook.ipynb         # original exploratory notebook
+│   ├── model.py                # Data processing, feature engineering & model pipelines
+│   └── hybrid_model.py         # Stacking ensemble and benchmark routines
+├── main.ipynb                  # Exploratory analysis, training, and SHAP interpretability
+├── save_models.py              # Script to train and re-export model artifacts
+└── README.md
 ```
 
-## Setup
+---
 
-This project pins its Python version and dependencies in `pyproject.toml`
-so everyone gets the same environment.
+## ☁️ Deployment on Streamlit Community Cloud
 
-```bash
-# 1. Create a virtual environment (uses the version pinned in pyproject.toml)
-python3 -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
+This repository is configured for 1-click deployment on **Streamlit Community Cloud**:
 
-# 2. Install the project (+ dev tools like pytest)
-pip install -e ".[dev]"
-```
+1. Fork or clone this repository to your GitHub account.
+2. Sign in to **[share.streamlit.io](https://share.streamlit.io)** with GitHub.
+3. Select this repository, set Branch to `main`, and Main file path to `app.py`.
+4. Click **Deploy!**.
 
-`.venv/` is git-ignored — every teammate creates their own local copy from
-`pyproject.toml`, so nobody commits environment-specific files.
+---
 
-## Usage
+## 📖 Methodology & Reference
 
-Run the full training pipeline:
+This project builds on methodologies and benchmarks established in water informatics research:
 
-```bash
-python -m src.model
-```
-
-This loads `data/dataset.csv`, computes the WQI ground truth, engineers
-features, trains the stacked ensemble, and prints test-set R², MAE, and RMSE.
-
-## Tests
-
-```bash
-pytest
-```
-
-## Notebook
-
-`notebook.ipynb` contains the original exploratory work: model comparison,
-SHAP explainability, sanity checks on extreme cases, and training-curve
-diagnostics (RNN learning curve, XGBoost complexity curve). The reusable
-parts of this workflow have been extracted into `src/model.py`.
-
-## Reference
-
-This project builds on the methodology described in:
-
-> Lamba, S., Dawar, I., Singal, M., & Singh, J. (2025). *Predicting water
-> quality index using machine learning techniques: a case study of river
-> Ganga in Haridwar, India.* Earth Science Informatics, 18, 369.
-> https://doi.org/10.1007/s12145-025-01865-2
-
-The full paper is included at [`paper/s12145-025-01865-2.pdf`](paper/s12145-025-01865-2.pdf).
-main
+> Lamba, S., Dawar, I., Singal, M., & Singh, J. (2025). *Predicting water quality index using machine learning techniques: a case study of river Ganga in Haridwar, India.* Earth Science Informatics, 18, 369. [DOI: 10.1007/s12145-025-01865-2](https://doi.org/10.1007/s12145-025-01865-2)

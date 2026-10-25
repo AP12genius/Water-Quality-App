@@ -25,3 +25,10 @@ htmlcov/
 .DS_Store
 .vscode/
 .idea/
+
+# Archives & Temporary Backups
+*.zip
+*.rar
+app_backup.py
+app_restyled.py
+requirements_dev.txt

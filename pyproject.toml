@@ -39,3 +39,12 @@ extend-exclude = ["main.ipynb"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.pyright]
+extraPaths = [
+    "src",
+    "C:/Users/Ayush/AppData/Local/Programs/Python/Python313/Lib/site-packages",
+]
+typeCheckingMode = "basic"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"

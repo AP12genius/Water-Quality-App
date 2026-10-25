@@ -32,3 +32,4 @@ htmlcov/
 app_backup.py
 app_restyled.py
 requirements_dev.txt
+uv.lock
